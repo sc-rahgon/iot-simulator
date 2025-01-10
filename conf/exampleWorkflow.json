@@ -1,0 +1,39 @@
+{
+    "eventFrequency": 4000,
+    "varyEventFrequency": true,
+    "repeatWorkflow": true,
+    "iterations": 5,
+    "timeBetweenRepeat": 15000,
+    "varyRepeatFrequency": true,
+    "steps": [{
+        "config": [{
+    		"timestamp": "nowTimestamp()",
+		    "system": "random('BADGE', 'AUDIT', 'WEB')",
+		    "actor": "bob",
+		    "action": "random('ENTER','LOGIN','EXIT', 'LOGOUT')",
+		    "objects": ["Building 1"],
+		    "location": {
+		    	"lat": "double(-90.0, 90.0)",
+		    	"lon": "double(-180.0, 180.0)"
+		    },
+		    "message": "Entered Building 1"
+		}],
+        "producerConfig": {
+        },
+        "duration": 0
+    },{
+        "config": [{
+    		"timestamp": "nowTimestamp()",
+		    "system": "random('BADGE', 'AUDIT', 'WEB')",
+		    "actor": "jeff",
+		    "action": "random('ENTER','LOGIN','EXIT', 'LOGOUT')",
+		    "objects": ["Building 2"],
+		    "location": {
+		    	"lat": "double(-90.0, 90.0)",
+		    	"lon": "double(-180.0, 180.0)"
+		    },
+		    "message": "Entered Building 2"
+		}],
+        "iterations": 2
+    }]
+}

@@ -1,0 +1,20 @@
+{
+  "device": {
+    "count": 10,
+    "prefix": "EM"
+  },
+  "gateway": {
+    "count": 2,
+    "prefix": "G"
+  },
+  "frequency": 5000,
+  "type": "batch",
+  "attributes": {
+    "timestamp": "timestamp()",
+    "voltage": "integer(100, 240)", 
+    "current": "double(0.0, 100.0)",
+    "power": "double(0.0, 5000.0)",
+    "energy": "double(0.0, 10000.0)",
+    "temperature": "double(20.0, 40.0)"
+  }
+}

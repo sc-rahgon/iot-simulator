@@ -1,0 +1,10 @@
+{
+    "workflows": [{
+            "workflowName": "test",
+            "workflowFilename": "simulation.json",
+            "instances" : 4
+        }],
+    "producers": [{
+        "type":"logger"
+    }]
+}

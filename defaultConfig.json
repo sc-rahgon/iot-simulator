@@ -1,0 +1,19 @@
+{
+  "simulations": [
+    {
+      "simulationName": "test",
+      "simulationConfig": "simulation.json",
+      "customTypeHandlers": []
+    }
+  ],
+  "producers": [
+    {
+      "type": "logger"
+    }
+  ],
+  "requestProcessors": [
+    {
+      "type": "httpRequest"
+    }
+  ]
+}
