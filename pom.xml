@@ -9,8 +9,8 @@
 		<version>2.2.1.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>net.acesinc.data</groupId>
-	<artifactId>json-data-generator</artifactId>
+	<groupId>com.iotsense</groupId>
+	<artifactId>iot-simulator</artifactId>
 	<packaging>jar</packaging>
 	<version>1.4.2-SNAPSHOT</version>
 	<name>${project.artifactId}</name>
