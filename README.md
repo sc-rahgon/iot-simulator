@@ -26,7 +26,7 @@ The IoT Device Simulator is a tool designed to generate configurable streams of 
       "customTypeHandlers": []
     }
   ],
-  "producers": [
+  "producers": [ 
     {
       "type": "logger"
     }
