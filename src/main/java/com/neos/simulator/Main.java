@@ -68,8 +68,12 @@ public class Main {
 		return filePath;
 	}
 
+	public static class RequestProcessorData {
+		public static List<RequestProcessor> requestProcessors = new ArrayList<>();
+	}
+
 	public String getSimulationContentPath() {
-		String folder = "/home/scry/Workspace/Github/iot-simulator/conf";
+		String folder = "/home/anish_agrawal/Desktop/IoT-Sense/iot-simulator/conf";
 		return folder;
 	}
 
@@ -117,18 +121,17 @@ public class Main {
 			
 				}
 			}
-			if (producers.isEmpty()) {
-				throw new IllegalArgumentException("You must configure at least one Producer in the Simulation Config");
-			}
+//			if (producers.isEmpty()) {
+//				throw new IllegalArgumentException("You must configure at least one Producer in the Simulation Config");
+//			}
 			
-			List<RequestProcessor> requestProcessors = new ArrayList<>();
 			for (Map<String, Object> processor : config.getRequestProcessors()) {
 				String type = (String) processor.get("type");
 				switch (type) {
 				case "httpRequest": {
 					LOGGER.info("Adding HTTP request Logger with properties: " + processor);
 					try {
-						requestProcessors.add(new HttpRequestProcessor(buffer));
+						RequestProcessorData.requestProcessors.add(new HttpRequestProcessor(buffer));
 					} catch (Exception ex) {
 						LOGGER.error("http-request processor", ex);
 					}
@@ -139,7 +142,7 @@ public class Main {
 			}
 			
 			
-			runner = new SimulationRunner(config, producers,requestProcessors, getSimulationContentPath(), buffer);
+	//		runner = new SimulationRunner(config, producers,requestProcessors, getSimulationContentPath(), buffer);
 		} catch (IOException ex) {
 			LOGGER.error("Error getting Simulation Config [ " + config + " ]", ex);
 		}
@@ -148,7 +151,7 @@ public class Main {
 
 	
 
-	private Config getConfig() throws IOException {
+	public Config getConfig() throws IOException {
 		Gson gson = new Gson();
 		try (FileReader reader = new FileReader(config)) {
 			Config config = gson.fromJson(reader, Config.class);
@@ -204,13 +207,13 @@ public class Main {
 //			}
 //		});
 
-		gen.startRunning();
-		while (gen.isRunning()) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException ex) {
-			}
-		}
+		//gen.startRunning();
+//		while (gen.isRunning()) {
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException ex) {
+//			}
+//		}
 	}
 
 }

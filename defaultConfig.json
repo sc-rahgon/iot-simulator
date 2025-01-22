@@ -8,7 +8,10 @@
   ],
   "producers": [
     {
-      "type": "logger"
+      "type" : "mqtt",
+      "broker.server" : "tcp://127.0.0.1",
+      "broker.port" : "1883",
+      "topic" : "api"
     }
   ],
   "requestProcessors": [

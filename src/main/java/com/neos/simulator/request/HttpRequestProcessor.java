@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.neos.simulator.controllers.CreateDeviceSimulationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,16 +27,17 @@ public class HttpRequestProcessor extends RequestProcessor {
     	this.setBuffer(buffer);
     	
      // Create an HTTP server that listens on port 8080
-        HttpServer server = HttpServer.create(new InetSocketAddress(6000), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
 
         // Create and bind handlers for the routes
         server.createContext("/getDevices", new GetDevicesHandler());
         server.createContext("/getGateways", new GetDevicesHandler());
         server.createContext("/getData", new GetDataHandler());
+        server.createContext("/startSimulation", new CreateDeviceSimulationEvent());
 
         // Start the server
         server.start();
-        System.out.println("Server started at http://localhost:6000");
+        System.out.println("Server started at http://localhost:8000");
     	
     }
     

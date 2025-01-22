@@ -29,8 +29,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Un produttore MQTT invia eventi json al broker MQTT specificato nella configurazione. 
- * L'esempio seguente mostra una configurazione di esempio che invia eventi JSON a un broker MQTT in esecuzione localmente in ascolto sulla porta MQTT predefinita. 
+ * Un produttore MQTT invia eventi json al broker MQTT specificato nella configurazione.
+ * L'esempio seguente mostra una configurazione di esempio che invia eventi JSON a un broker MQTT in esecuzione localmente in ascolto sulla porta MQTT predefinita.
  * L'esempio include anche i due campi opzionali: nome utente e password
 {
     "type": "mqtt",
@@ -42,8 +42,8 @@ import org.springframework.web.client.RestTemplate;
     "username": "whoami",
     "password": "whatsmypassword"
 }
-Il produttore MQTT supporta la configurazione specifica del passaggio per QOS e argomento. 
-L'intera configurazione e ogni elemento in essa contenuto sono opzionali. 
+Il produttore MQTT supporta la configurazione specifica del passaggio per QOS e argomento.
+L'intera configurazione e ogni elemento in essa contenuto sono opzionali.
 Aggiungi un elemento "mqtt" alla mappa "producerConfig":
 
 "mqtt" : {
@@ -54,7 +54,7 @@ Aggiungi un elemento "mqtt" alla mappa "producerConfig":
  */
 public class MqttProducer extends EventProducer {
     private static final Logger log = LogManager.getLogger(MqttProducer.class);
-    
+
     /* Constants fpr Properties names */
     private static final String PRODUCER_TYPE_NAME = "mqtt";
     private static final String BROKER_SERVER_PROP_NAME = "broker.server";
@@ -68,7 +68,7 @@ public class MqttProducer extends EventProducer {
     /* Constants for default values */
     private static final String DEFAULT_CLIENT_ID     = "JsonGenerator";
     private static final int DEFAULT_QOS = 2;
-    
+
     /* Instance properties */
     private final MqttClient mqttClient;
     private final String topic;
@@ -77,9 +77,9 @@ public class MqttProducer extends EventProducer {
     public MqttProducer(Map<String, Object> props) throws MqttException {
     	super();
         String brokerHost = (String) props.get(BROKER_SERVER_PROP_NAME);
-        Integer brokerPort = (Integer) props.get(BROKER_PORT_PROP_NAME);
+        Integer brokerPort = (Integer.parseInt((String) props.get(BROKER_PORT_PROP_NAME)));
         String brokerAddress = brokerHost + ":" + brokerPort.toString();
-        
+
         String clientId = (String) props.get(CLIENT_ID_PROP_NAME);
         String username = (String)props.get(USERNAME_PROP_NAME);
         String password = (String)props.get(PASSWORD_PROP_NAME);
@@ -91,7 +91,7 @@ public class MqttProducer extends EventProducer {
         topic = (String) props.get(TOPIC_PROP_NAME);
         Integer _qos = (Integer) props.get(QOS_PROP_NAME);
         qos = null == _qos ? DEFAULT_QOS : _qos;
-        
+
         mqttClient = new MqttClient(brokerAddress,
                 null == clientId ? DEFAULT_CLIENT_ID : clientId);
         MqttConnectOptions connOpts = new MqttConnectOptions();
@@ -105,23 +105,23 @@ public class MqttProducer extends EventProducer {
 
         log.debug("Connecting to broker: "+brokerAddress);
         mqttClient.connect(connOpts);
-        log.debug("Connected");
+        log.debug("Connected - MQTT");
     }
 
 	@SuppressWarnings("unchecked")
 	@Override
-    public void publish(String even) {
-//        String _topic = null;
-//        Integer _qos = null;
+    public void publish(String event) {
+        String _topic = null;
+        Integer _qos = null;
 //        Object value = producerConfig.get(PRODUCER_TYPE_NAME);
 //        if (null != value && Map.class.isAssignableFrom(value.getClass())) {
 //            Map<String, Object> config = (Map<String, Object>) value;
-//            _topic = (String) config.get(TOPIC_PROP_NAME);
-//            _qos = (Integer) config.get(QOS_PROP_NAME);
-//        }
-//        logEvent(event, null == _topic ? topic : _topic, null == _qos ? qos : _qos);
+            _topic = "test";
+            _qos = 2;
+        //}
+        logEvent(event, null == _topic ? topic : _topic, null == _qos ? qos : _qos);
     }
-    
+
     /**
      *
      * @param event the value of event

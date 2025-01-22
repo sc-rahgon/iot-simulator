@@ -43,6 +43,17 @@ public class SimulationRunner {
 		setupSimulation(buffer);
 	}
 
+	public SimulationRunner(Config config, List<EventProducer> producers, String basePath, EventBuffer buffer) {
+		this.config = config;
+		this.producers = producers;
+		this.basePath = basePath;
+
+		eventGenerators = new ArrayList<EventGenerator>();
+		eventGenThreads = new ArrayList<Thread>();
+
+		setupSimulation(buffer);
+	}
+
 	private void setupSimulation(EventBuffer buffer) {
 		running = false;
 		for (SimulationConfig simulationConfig : config.getSimulations()) {
@@ -67,8 +78,9 @@ public class SimulationRunner {
 	public void startSimulation() {
 		log.info("Starting Simulation");
 
-		if (eventGenThreads.size() > 0) {
+		if (!eventGenThreads.isEmpty()) {
 			for (Thread t : eventGenThreads) {
+				System.err.println("Thread details:" + t.getId());
 				t.start();
 			}
 			running = true;
