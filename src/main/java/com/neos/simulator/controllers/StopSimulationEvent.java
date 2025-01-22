@@ -20,7 +20,7 @@ public class StopSimulationEvent implements HttpHandler {
             Map<String,String> query = Utils.parseQuery((httpExchange.getRequestURI().getQuery()));
             runner = new SimulationRunner();
             if(query.containsKey("email")) {
-                runner.stopSimulation(query.get("email"));
+                runner.stopSimulation(query.get("email"), query.get("simulationName"));
             } else {
                 throw new RuntimeException("Invalid email ID provided");
             }

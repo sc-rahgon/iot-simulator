@@ -12,12 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.neos.simulator.cache.SimpleCacheManager;
+import com.neos.simulator.config.H2InMemoryDB;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -89,7 +91,7 @@ public class Main {
             }
         }
 		public static String simulationPath = getSimulationContentPath();
-
+		public static Connection connection = H2InMemoryDB.makeConnection();
     }
 
 

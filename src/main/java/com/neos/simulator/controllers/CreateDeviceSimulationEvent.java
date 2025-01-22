@@ -55,7 +55,7 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
             Simulation simulation = setSimulationConfig(createSimulationRequestDTO);
             runner = new SimulationRunner(Main.RequestProcessorData.config, Main.RequestProcessorData.eventProducers, Main.RequestProcessorData.requestProcessors, Main.RequestProcessorData.simulationPath, new EventBuffer(), simulation);
 
-            runner.startSimulation(createSimulationRequestDTO.getEmailId());
+            runner.startSimulation(createSimulationRequestDTO.getEmailId(), createSimulationRequestDTO.getSimulationName());
             httpExchange.sendResponseHeaders(200, 0);
             httpExchange.getResponseBody().close();
         } else {

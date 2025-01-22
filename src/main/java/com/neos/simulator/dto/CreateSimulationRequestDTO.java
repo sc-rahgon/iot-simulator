@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CreateSimulationRequestDTO {
+    private String simulationName;
     private String profileID;
     private String protocol;
     private long numberOfDevices;
@@ -94,5 +95,13 @@ public class CreateSimulationRequestDTO {
 
     public void setDevicePrefix(String devicePrefix) {
         this.devicePrefix = devicePrefix;
+    }
+
+    public String getSimulationName() {
+        return simulationName;
+    }
+
+    public void setSimulationName(String simulationName) {
+        this.simulationName = simulationName;
     }
 }
