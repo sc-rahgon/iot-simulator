@@ -1,7 +1,7 @@
 {
   "simulations": [
     {
-      "simulationName": "test",
+      "simulationName": "test2",
       "simulationConfig": "simulation.json",
       "customTypeHandlers": []
     }

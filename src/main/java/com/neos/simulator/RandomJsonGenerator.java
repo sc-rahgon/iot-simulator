@@ -49,14 +49,12 @@ public class RandomJsonGenerator {
     private SimulationConfig simulationConfig;
     private TypeHandlerFactory typeHandlerFactory;
 
-    public RandomJsonGenerator(Map<String, Object> config, SimulationConfig simulationConfig) {
+    public RandomJsonGenerator(Map<String, Object> config) {
         this.config = config;
-        this.simulationConfig = simulationConfig;
-        
         jsonUtils = new JsonUtils();
         
         typeHandlerFactory = new TypeHandlerFactory();
-        typeHandlerFactory.configure(simulationConfig);
+//        typeHandlerFactory.configure(simulationConfig);
     }
 
     public Map<String, Object> generateData() {

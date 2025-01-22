@@ -8,9 +8,13 @@ public class CreateSimulationRequestDTO {
     private String profileID;
     private String protocol;
     private long numberOfDevices;
+    private String devicePrefix;
     private long deviceIdIncrement;
     private HashMap<String, Object> attributes;
-    private int simulationFrequency;
+    private long simulationFrequency;
+    private String isDurationDefined;
+    private List<OffsetDateTime> dates;
+    private String emailId;
 
     public String getProfileID() {
         return profileID;
@@ -52,19 +56,19 @@ public class CreateSimulationRequestDTO {
         this.attributes = attributes;
     }
 
-    public int getSimulationFrequency() {
+    public long getSimulationFrequency() {
         return simulationFrequency;
     }
 
-    public void setSimulationFrequency(int simulationFrequency) {
+    public void setSimulationFrequency(long simulationFrequency) {
         this.simulationFrequency = simulationFrequency;
     }
 
-    public boolean isDurationDefined() {
+    public String isDurationDefined() {
         return isDurationDefined;
     }
 
-    public void setDurationDefined(boolean durationDefined) {
+    public void setDurationDefined(String durationDefined) {
         isDurationDefined = durationDefined;
     }
 
@@ -76,6 +80,19 @@ public class CreateSimulationRequestDTO {
         this.dates = dates;
     }
 
-    private boolean isDurationDefined;
-    private List<OffsetDateTime> dates;
+    public String getEmailId() {
+        return emailId;
+    }
+
+    public void setEmailId(String emailId) {
+        this.emailId = emailId;
+    }
+
+    public String getDevicePrefix() {
+        return devicePrefix;
+    }
+
+    public void setDevicePrefix(String devicePrefix) {
+        this.devicePrefix = devicePrefix;
+    }
 }

@@ -21,12 +21,10 @@ public class EventGenerator implements Runnable {
     private Simulation simulation;
     private boolean running;
     private List<EventProducer> producers;
-    private SimulationConfig simulationConfig;
     private EventBuffer buffer;
 
-    public EventGenerator(Simulation simulation, SimulationConfig simulationConfig, List<EventProducer> producers, EventBuffer buffer) {
+    public EventGenerator(Simulation simulation, List<EventProducer> producers, EventBuffer buffer) {
         this.simulation = simulation;
-        this.simulationConfig = simulationConfig;
         this.producers = producers;
         this.buffer = buffer;
         
@@ -47,7 +45,7 @@ public class EventGenerator implements Runnable {
     }
 
     public Map<String, Object> generateEvent(String device, String gateway, Map<String, Object> attributes) throws IOException {
-        RandomJsonGenerator generator = new RandomJsonGenerator(attributes, simulationConfig);
+        RandomJsonGenerator generator = new RandomJsonGenerator(attributes);
         Map<String, Object> data = generator.generateData();
         data.put("device", device);
         data.put("gateway", gateway);

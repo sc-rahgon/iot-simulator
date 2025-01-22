@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.neos.simulator.cache.SimpleCacheManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -56,7 +57,7 @@ public class Main {
 	private static final Logger LOGGER = LogManager.getLogger(Main.class);
 
 	private SimulationRunner runner;
-	private String config;
+	private static String config;
 	private EventBuffer buffer;
 
 	public Main() {
@@ -68,42 +69,55 @@ public class Main {
 		return filePath;
 	}
 
-	public static class RequestProcessorData {
-		public static List<RequestProcessor> requestProcessors = new ArrayList<>();
-	}
-
-	public String getSimulationContentPath() {
+	public static String getSimulationContentPath() {
 		String folder = "/home/anish_agrawal/Desktop/IoT-Sense/iot-simulator/conf";
 		return folder;
 	}
 
+
+
+	public static class RequestProcessorData {
+		public static List<RequestProcessor> requestProcessors = new ArrayList<>();
+		public static List<EventProducer> eventProducers = new ArrayList<>();
+		public static Config config;
+		public static SimpleCacheManager<String, Object> cache = new SimpleCacheManager<>(5000, 20000000);
+        static {
+            try {
+                config = getConfig();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+		public static String simulationPath = getSimulationContentPath();
+
+    }
+
+
 	public Main setUpSimulation() {
 		try {
-			Config config = getConfig();
-			List<EventProducer> producers = new ArrayList<>();
-			for (Map<String, Object> producer : config.getProducers()) {
+			for (Map<String, Object> producer : RequestProcessorData.config.getProducers()) {
 				String type = (String) producer.get("type");
 				switch (type) {
 				case "logger": {
 					LOGGER.info("Adding Log4JLogger Producer");
-					producers.add(new Log4JProducer());
+					RequestProcessorData.eventProducers.add(new Log4JProducer());
 					break;
 				}
 				case "file": {
 					LOGGER.info("Adding File Logger with properties: " + producer);
-					producers.add(new FileProducer(producer));
+					RequestProcessorData.eventProducers.add(new FileProducer(producer));
 					break;
 				}
 				case "kafka": {
 					LOGGER.info("Adding Kafka Producer with properties: " + producer);
-					producers.add(new KafkaMsgProducer(producer));
+					RequestProcessorData.eventProducers.add(new KafkaMsgProducer(producer));
 					break;
 				}
 				
 				case "httpPost": {
 					LOGGER.info("Adding HTTP Post Logger with properties: " + producer);
 					try {
-						producers.add(new HttpPostProducer(producer));
+						RequestProcessorData.eventProducers.add(new HttpPostProducer(producer));
 					} catch (NoSuchAlgorithmException ex) {
 						LOGGER.error("http-post Logger unable to initialize", ex);
 					}
@@ -112,7 +126,7 @@ public class Main {
 				case "mqtt": {
 					LOGGER.info("Adding MQTT Logger with properties: " + producer);
 					try {
-						producers.add(new MqttProducer(producer));
+						RequestProcessorData.eventProducers.add(new MqttProducer(producer));
 					} catch (MqttException ex) {
 						LOGGER.error("mqtt Logger unable to initialize", ex);
 					}
@@ -121,11 +135,11 @@ public class Main {
 			
 				}
 			}
-//			if (producers.isEmpty()) {
-//				throw new IllegalArgumentException("You must configure at least one Producer in the Simulation Config");
-//			}
+			if (RequestProcessorData.eventProducers.isEmpty()) {
+				throw new IllegalArgumentException("You must configure at least one Producer in the Simulation Config");
+			}
 			
-			for (Map<String, Object> processor : config.getRequestProcessors()) {
+			for (Map<String, Object> processor : RequestProcessorData.config.getRequestProcessors()) {
 				String type = (String) processor.get("type");
 				switch (type) {
 				case "httpRequest": {
@@ -140,9 +154,6 @@ public class Main {
 			
 				}
 			}
-			
-			
-	//		runner = new SimulationRunner(config, producers,requestProcessors, getSimulationContentPath(), buffer);
 		} catch (IOException ex) {
 			LOGGER.error("Error getting Simulation Config [ " + config + " ]", ex);
 		}
@@ -151,7 +162,7 @@ public class Main {
 
 	
 
-	public Config getConfig() throws IOException {
+	public static Config getConfig() throws IOException {
 		Gson gson = new Gson();
 		try (FileReader reader = new FileReader(config)) {
 			Config config = gson.fromJson(reader, Config.class);
@@ -172,9 +183,9 @@ public class Main {
 		return runner;
 	}
 	
-	public void startRunning() {
-		runner.startSimulation();
-	}
+//	public void startRunning() {
+//		runner.startSimulation();
+//	}
 
 	public void stopRunning() {
 		runner.stopSimulation();
@@ -195,25 +206,6 @@ public class Main {
 		Main gen = new Main();
 		gen.setConfigFile(config);
 		gen.setUpSimulation();
-
-//		Thread mainThread = Thread.currentThread();
-//		Runtime.getRuntime().addShutdownHook(new Thread() {
-//			public void run() {
-//				LOGGER.info("Shutdown Hook Invoked.  Shutting Down Loggers");
-//				try {
-//					mainThread.join();
-//				} catch (InterruptedException ex) {
-//				}
-//			}
-//		});
-
-		//gen.startRunning();
-//		while (gen.isRunning()) {
-//			try {
-//				Thread.sleep(1000);
-//			} catch (InterruptedException ex) {
-//			}
-//		}
 	}
 
 }
