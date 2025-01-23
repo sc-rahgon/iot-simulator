@@ -11,7 +11,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.pulsar.client.impl.Hash;
 
 import java.io.*;
 import java.sql.PreparedStatement;
@@ -20,8 +19,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 
 public class FetchFromH2 implements HttpHandler {
     private static final Logger LOGGER = LogManager.getLogger(FetchFromH2.class);

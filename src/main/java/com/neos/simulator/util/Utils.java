@@ -1,15 +1,37 @@
 package com.neos.simulator.util;
 
+import com.neos.simulator.controllers.CreateDeviceSimulationEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMDecryptorProvider;
+import org.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
+
+import javax.net.ssl.*;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class Utils {
-	
+
+    private static final Logger LOGGER = LogManager.getLogger(Utils.class);
+
     public static String stripQuotes(String s) {
         return s.replaceAll("'", "").replaceAll("\"", "").trim();
     }
@@ -55,3 +77,4 @@ public class Utils {
         return new UUID(mostSignificantBits, leastSignificantBits);
     }
 }
+

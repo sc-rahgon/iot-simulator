@@ -61,7 +61,6 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
 
             Simulation simulation = setSimulationConfig(createSimulationRequestDTO);
             runner = new SimulationRunner(Main.RequestProcessorData.config, Main.RequestProcessorData.eventProducers, Main.RequestProcessorData.requestProcessors, Main.RequestProcessorData.simulationPath, new EventBuffer(), simulation);
-
             String threadIds = runner.startSimulation();
             saveDetailsToDatabase(threadIds, createSimulationRequestDTO);
             httpExchange.sendResponseHeaders(200, 0);

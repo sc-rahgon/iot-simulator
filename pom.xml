@@ -174,7 +174,21 @@
 					<groupId>org.hyperic</groupId>
 					<artifactId>sigar</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk15</artifactId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>1.76</version> <!-- Replace with the latest stable version -->
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk18on</artifactId>
+			<version>1.76</version> <!-- Match this version with bcprov -->
 		</dependency>
 		<dependency>
 			<groupId>com.github.cloudfoundry-community</groupId>
@@ -226,6 +240,16 @@
 			<groupId>org.apache.pulsar</groupId>
 			<artifactId>pulsar-client</artifactId>
 			<version>1.22.0-incubating</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcpkix-jdk15on</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk15on</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.crossbar.autobahn</groupId>
