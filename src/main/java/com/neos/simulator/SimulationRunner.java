@@ -99,40 +99,18 @@ public class SimulationRunner {
 
     }
 
-    public void startSimulation(String emailID, String simulationName) {
+    public String startSimulation() {
         log.info("Starting Simulation");
+        String threadIds = "";
         if (!eventGenThreads.isEmpty()) {
             for (Thread t : eventGenThreads) {
                 System.err.println("Thread details:" + t.getId());
                 t.start();
             }
             running = true;
-            try {
-                String sessionUUID = String.valueOf(Utils.generateUUID(emailID + simulationName));
-                String threadIDs = eventGenThreads.stream().map(x -> String.valueOf(x.getId())).collect(Collectors.joining(";"));
-                String createStatement = "CREATE TABLE IF NOT EXISTS SIMULATION_DETAILS(\n" +
-                        "    id INT PRIMARY KEY AUTO_INCREMENT,\n" +
-                        "    email VARCHAR(255),\n" +
-                        "    thread_details VARCHAR(255),\n" +
-                        "    timestamp DATETIME,\n" +
-                        "    simulation_name VARCHAR(255),\n" +
-                        "    session_uuid VARCHAR(255),\n" +
-                        "    is_active BOOLEAN DEFAULT TRUE\n" +
-                        ");\n";
-                Main.RequestProcessorData.connection.createStatement().execute(createStatement);
-                PreparedStatement statement = Main.RequestProcessorData.connection.prepareStatement("INSERT INTO SIMULATION_DETAILS (EMAIL, THREAD_DETAILS, TIMESTAMP, SIMULATION_NAME, SESSION_UUID, IS_ACTIVE) VALUES (?, ?, ?,?,?, ?)");
-                statement.setString(1, emailID);
-                statement.setString(2, threadIDs);
-                statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-                statement.setString(4, simulationName);
-                statement.setString(5, sessionUUID);
-                statement.setBoolean(6, running);
-                statement.executeUpdate();
-            } catch (NoSuchAlgorithmException | SQLException e) {
-                throw new RuntimeException(e);
-            }
-            Main.RequestProcessorData.cache.put(emailID, eventGenThreads, 200000000);
         }
+        threadIds = eventGenThreads.stream().map(x -> String.valueOf(x.getId())).collect(Collectors.joining(";"));
+        return threadIds;
     }
 
     public void stopSimulation() {
@@ -146,49 +124,10 @@ public class SimulationRunner {
         running = false;
     }
 
-    public void stopSimulation(String email, String simulationName) {
+    public void stopSimulation(List<Thread> threads) {
         log.error("Stopping Simulation");
-        String sessionUUID = "";
-        try {
-            sessionUUID = String.valueOf(Utils.generateUUID(email + simulationName));
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        List<Thread> threads = new ArrayList<>();
-        try {
-            PreparedStatement preparedStatement = Main.RequestProcessorData.connection.prepareStatement("SELECT * FROM SIMULATION_DETAILS where session_uuid = ? and email = ? and is_active = ?");
-            preparedStatement.setString(1, sessionUUID);
-            preparedStatement.setString(2, email);
-            preparedStatement.setBoolean(3, true);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<Integer> ids = new ArrayList<>();
-            while (resultSet.next()) {
-                String[] threadIDs = resultSet.getString("thread_details").split(";");
-                for(String threadID : threadIDs) {
-                    ids.add(Integer.parseInt(threadID));
-                }
-            }
-            ids.forEach(x -> {
-                Thread t = Utils.findThreadById(x);
-                threads.add(t);
-            });
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
         threads.forEach(Thread::interrupt);
         running = false;
-
-        try {
-            PreparedStatement preparedStatement = Main.RequestProcessorData.connection.prepareStatement("UPDATE SIMULATION_DETAILS\n" +
-                    "SET is_active = false \n" +
-                    "where session_uuid = ? and email = ? and is_active = ?");
-            preparedStatement.setString(1, sessionUUID);
-            preparedStatement.setString(2, email);
-            preparedStatement.setBoolean(3, true);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public boolean isRunning() {

@@ -11,6 +11,7 @@ import com.neos.simulator.config.SimulationConfig;
 import com.neos.simulator.dto.AttributeRequestDTO;
 import com.neos.simulator.dto.CreateSimulationRequestDTO;
 import com.neos.simulator.request.EventBuffer;
+import com.neos.simulator.util.Utils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.apache.logging.log4j.LogManager;
@@ -20,9 +21,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.neos.simulator.constants.SimulatorConstants.parameterConfig;
 
@@ -55,11 +62,38 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
             Simulation simulation = setSimulationConfig(createSimulationRequestDTO);
             runner = new SimulationRunner(Main.RequestProcessorData.config, Main.RequestProcessorData.eventProducers, Main.RequestProcessorData.requestProcessors, Main.RequestProcessorData.simulationPath, new EventBuffer(), simulation);
 
-            runner.startSimulation(createSimulationRequestDTO.getEmailId(), createSimulationRequestDTO.getSimulationName());
+            String threadIds = runner.startSimulation();
+            saveDetailsToDatabase(threadIds, createSimulationRequestDTO);
             httpExchange.sendResponseHeaders(200, 0);
             httpExchange.getResponseBody().close();
         } else {
             httpExchange.sendResponseHeaders(405, -1);
+        }
+    }
+
+    private void saveDetailsToDatabase(String threadIds, CreateSimulationRequestDTO createSimulationRequestDTO) {
+        try {
+            String sessionUUID = String.valueOf(Utils.generateUUID(createSimulationRequestDTO.getEmailId() + createSimulationRequestDTO.getSimulationName()));
+            String createStatement = "CREATE TABLE IF NOT EXISTS SIMULATION_DETAILS(\n" +
+                    "    id INT PRIMARY KEY AUTO_INCREMENT,\n" +
+                    "    email VARCHAR(255),\n" +
+                    "    thread_details VARCHAR(255),\n" +
+                    "    timestamp DATETIME,\n" +
+                    "    simulation_name VARCHAR(255),\n" +
+                    "    session_uuid VARCHAR(255),\n" +
+                    "    is_active BOOLEAN DEFAULT TRUE\n" +
+                    ");\n";
+            Main.RequestProcessorData.connection.createStatement().execute(createStatement);
+            PreparedStatement statement = Main.RequestProcessorData.connection.prepareStatement("INSERT INTO SIMULATION_DETAILS (EMAIL, THREAD_DETAILS, TIMESTAMP, SIMULATION_NAME, SESSION_UUID, IS_ACTIVE) VALUES (?, ?, ?,?,?, ?)");
+            statement.setString(1, createSimulationRequestDTO.getEmailId());
+            statement.setString(2, threadIds);
+            statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setString(4, createSimulationRequestDTO.getSimulationName());
+            statement.setString(5, sessionUUID);
+            statement.setBoolean(6, true);
+            statement.executeUpdate();
+        } catch (NoSuchAlgorithmException | SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

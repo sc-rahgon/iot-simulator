@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class H2InMemoryDB {
-    private static String jdbcUrl = "jdbc:h2:mem:testdb";
+    private static String jdbcUrl = "jdbc:h2:./data/embeddedDB";
     private static String username = "sa";
     private static String password = "";
 

@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.neos.simulator.controllers.CreateDeviceSimulationEvent;
+import com.neos.simulator.controllers.FetchFromH2;
 import com.neos.simulator.controllers.StopSimulationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,6 +37,7 @@ public class HttpRequestProcessor extends RequestProcessor {
         server.createContext("/getData", new GetDataHandler());
         server.createContext("/startSimulation", new CreateDeviceSimulationEvent());
         server.createContext("/stopSimulation", new StopSimulationEvent());
+        server.createContext("/fetchAllData", new FetchFromH2());
 
         // Start the server
         server.start();
