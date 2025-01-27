@@ -18,8 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.mongodb.MongoClient;
 import com.neos.simulator.cache.SimpleCacheManager;
 import com.neos.simulator.config.H2InMemoryDB;
+import com.neos.simulator.config.MongoDBConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -82,7 +84,7 @@ public class Main {
 		public static List<RequestProcessor> requestProcessors = new ArrayList<>();
 		public static List<EventProducer> eventProducers = new ArrayList<>();
 		public static Config config;
-		public static SimpleCacheManager<String, Object> cache = new SimpleCacheManager<>(5000, 20000000);
+		public static SimpleCacheManager<String, Object> cache = new SimpleCacheManager<>(5000000, 20000000);
         static {
             try {
                 config = getConfig();
@@ -92,6 +94,7 @@ public class Main {
         }
 		public static String simulationPath = getSimulationContentPath();
 		public static Connection connection = H2InMemoryDB.makeConnection();
+		public static MongoClient mongoClient = MongoDBConfig.createMongoClientSettings();
     }
 
 

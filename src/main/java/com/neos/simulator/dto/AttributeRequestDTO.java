@@ -1,35 +1,9 @@
 package com.neos.simulator.dto;
 
 public class AttributeRequestDTO {
-    private String upperLimit;
-    private String lowerLimit;
-    private String typeOfIncrement;
+    private String function;
     private String dataType;
     private String unit;
-
-    public String getUpperLimit() {
-        return upperLimit;
-    }
-
-    public void setUpperLimit(String upperLimit) {
-        this.upperLimit = upperLimit;
-    }
-
-    public String getLowerLimit() {
-        return lowerLimit;
-    }
-
-    public void setLowerLimit(String lowerLimit) {
-        this.lowerLimit = lowerLimit;
-    }
-
-    public String getTypeOfIncrement() {
-        return typeOfIncrement;
-    }
-
-    public void setTypeOfIncrement(String typeOfIncrement) {
-        this.typeOfIncrement = typeOfIncrement;
-    }
 
     public String getDataType() {
         return dataType;
@@ -45,5 +19,13 @@ public class AttributeRequestDTO {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public String getFunction() {
+        return function;
+    }
+
+    public void setFunction(String function) {
+        this.function = function;
     }
 }

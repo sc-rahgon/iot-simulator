@@ -43,8 +43,8 @@ public class Utils {
                 .orElse(null);
     }
 
-    public static Map<String, String> parseQuery(String query) throws UnsupportedEncodingException {
-        Map<String, String> params = new HashMap<>();
+    public static Map<String, Object> parseQuery(String query) throws UnsupportedEncodingException {
+        Map<String, Object> params = new HashMap<>();
         if (query == null || query.isEmpty()) {
             return params;
         }

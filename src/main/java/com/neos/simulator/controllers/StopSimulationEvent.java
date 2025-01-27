@@ -1,5 +1,10 @@
 package com.neos.simulator.controllers;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.neos.simulator.Main;
 import com.neos.simulator.SimulationRunner;
 import com.neos.simulator.util.Utils;
@@ -7,6 +12,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.Document;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -14,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,12 +31,13 @@ public class StopSimulationEvent implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         if (httpExchange.getRequestMethod().equals("GET")) {
-            Map<String,String> query = Utils.parseQuery((httpExchange.getRequestURI().getQuery()));
+            Map<String,Object> query = Utils.parseQuery((httpExchange.getRequestURI().getQuery()));
             runner = new SimulationRunner();
-            List<Thread> threads = fetchThread(query.get("email"), query.get("simulationName"));
+            List<Thread> threads = fetchThread((String) query.get("email"), (String) query.get("simulationName"));
+            threads.removeAll(Collections.singleton(null));
             if(query.containsKey("email") && query.containsKey("simulationName")) {
                 runner.stopSimulation(threads);
-                updateRunningStatus(query.get("email"), query.get("simulationName"));
+                updateRunningStatus((String) query.get("email"), (String) query.get("simulationName"));
             } else {
                 throw new RuntimeException("Invalid email ID provided");
             }
@@ -55,6 +63,19 @@ public class StopSimulationEvent implements HttpHandler {
             preparedStatement.setString(2, email);
             preparedStatement.setBoolean(3, true);
             preparedStatement.executeUpdate();
+
+            MongoClient mongoClient = Main.RequestProcessorData.mongoClient;
+            MongoDatabase db = mongoClient.getDatabase("neom_prod");
+            MongoCollection<Document> collection = db.getCollection("iot-simulator");
+            Document document = collection.find(new BasicDBObject("sessionUUID", sessionUUID)).first();
+            if(document != null) {
+                if(document.containsKey("isActive")) {
+                    document.replace("isActive", "false");
+                }
+            }
+
+            collection.updateOne(Filters.eq("sessionUUID", sessionUUID), // Filter to find the document
+                    new Document("$set", document));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

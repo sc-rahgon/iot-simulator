@@ -1,6 +1,7 @@
 package com.neos.simulator.dto;
 
 import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,9 +14,11 @@ public class CreateSimulationRequestDTO {
     private long deviceIdIncrement;
     private HashMap<String, Object> attributes;
     private long simulationFrequency;
-    private String isDurationDefined;
-    private List<OffsetDateTime> dates;
+    private String durationDefine;
+    private List<Date> dates;
     private String emailId;
+    private String gatewayPrefix;
+    private long gatewayIncrement;
 
     public String getProfileID() {
         return profileID;
@@ -65,19 +68,11 @@ public class CreateSimulationRequestDTO {
         this.simulationFrequency = simulationFrequency;
     }
 
-    public String isDurationDefined() {
-        return isDurationDefined;
-    }
-
-    public void setDurationDefined(String durationDefined) {
-        isDurationDefined = durationDefined;
-    }
-
-    public List<OffsetDateTime> getDates() {
+    public List<Date> getDates() {
         return dates;
     }
 
-    public void setDates(List<OffsetDateTime> dates) {
+    public void setDates(List<Date> dates) {
         this.dates = dates;
     }
 
@@ -103,5 +98,29 @@ public class CreateSimulationRequestDTO {
 
     public void setSimulationName(String simulationName) {
         this.simulationName = simulationName;
+    }
+
+    public String getGatewayPrefix() {
+        return gatewayPrefix;
+    }
+
+    public void setGatewayPrefix(String gatewayPrefix) {
+        this.gatewayPrefix = gatewayPrefix;
+    }
+
+    public long getGatewayIncrement() {
+        return gatewayIncrement;
+    }
+
+    public void setGatewayIncrement(long gatewayIncrement) {
+        this.gatewayIncrement = gatewayIncrement;
+    }
+
+    public String getDurationDefine() {
+        return durationDefine;
+    }
+
+    public void setDurationDefine(String durationDefine) {
+        this.durationDefine = durationDefine;
     }
 }

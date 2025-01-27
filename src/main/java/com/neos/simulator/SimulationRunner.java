@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.neos.simulator.util.Utils;
@@ -126,7 +127,7 @@ public class SimulationRunner {
 
     public void stopSimulation(List<Thread> threads) {
         log.error("Stopping Simulation");
-        threads.forEach(Thread::interrupt);
+        if(Objects.nonNull(threads) && !threads.isEmpty()) threads.forEach(Thread::interrupt);
         running = false;
     }
 

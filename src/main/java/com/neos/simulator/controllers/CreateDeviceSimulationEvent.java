@@ -2,6 +2,9 @@ package com.neos.simulator.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.neos.simulator.DeviceSetting;
 import com.neos.simulator.Main;
 import com.neos.simulator.Simulation;
@@ -16,16 +19,21 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.Document;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -62,7 +70,7 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
             Simulation simulation = setSimulationConfig(createSimulationRequestDTO);
             runner = new SimulationRunner(Main.RequestProcessorData.config, Main.RequestProcessorData.eventProducers, Main.RequestProcessorData.requestProcessors, Main.RequestProcessorData.simulationPath, new EventBuffer(), simulation);
             String threadIds = runner.startSimulation();
-            saveDetailsToDatabase(threadIds, createSimulationRequestDTO);
+            saveDetailsToDatabase(threadIds, createSimulationRequestDTO, requestBody);
             httpExchange.sendResponseHeaders(200, 0);
             httpExchange.getResponseBody().close();
         } else {
@@ -70,7 +78,7 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
         }
     }
 
-    private void saveDetailsToDatabase(String threadIds, CreateSimulationRequestDTO createSimulationRequestDTO) {
+    private void saveDetailsToDatabase(String threadIds, CreateSimulationRequestDTO createSimulationRequestDTO, String requestBody) {
         try {
             String sessionUUID = String.valueOf(Utils.generateUUID(createSimulationRequestDTO.getEmailId() + createSimulationRequestDTO.getSimulationName()));
             String createStatement = "CREATE TABLE IF NOT EXISTS SIMULATION_DETAILS(\n" +
@@ -91,6 +99,14 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
             statement.setString(5, sessionUUID);
             statement.setBoolean(6, true);
             statement.executeUpdate();
+
+            MongoClient mongoClient = Main.RequestProcessorData.mongoClient;
+            MongoDatabase db = mongoClient.getDatabase("neom_prod");
+            MongoCollection<Document> collection = db.getCollection("iot-simulator");
+            Document value = Document.parse(requestBody);
+            value.put("isActive", "true");
+            value.put("sessionUUID", sessionUUID);
+            collection.insertOne(value);
         } catch (NoSuchAlgorithmException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -106,23 +122,31 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
         Map<String, Object> attributes = new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
         for(Map.Entry<String, Object> entry : requestBodyAttribute.entrySet()) {
-            AttributeRequestDTO attributeRequestDTO = new AttributeRequestDTO();
+            AttributeRequestDTO attributeRequestDTO;
             try {
                 attributeRequestDTO = objectMapper.readValue(objectMapper.writeValueAsString(entry.getValue()), AttributeRequestDTO.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             if(Objects.nonNull(attributeRequestDTO)) {
-                String attributeFormat = parameterConfig
-                        .replace("{type}", attributeRequestDTO.getDataType())
-                        .replace("{lowerlimit}", attributeRequestDTO.getLowerLimit())
-                        .replace("{upperLimit}", attributeRequestDTO.getUpperLimit());
-                attributes.put(entry.getKey(), attributeFormat);
+                attributes.put(entry.getKey(), attributeRequestDTO.getFunction());
+            }
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        if(!attributes.containsKey("timestamp")) {
+            if(createSimulationRequestDTO.getDurationDefine().equals("false")) {
+                attributes.put("timestamp", "timestamp()");
+            } else {
+                attributes.put("timestamp", parameterConfig.replace("{type}", "timestamp")
+                        .replace("{lowerLimit}", ZonedDateTime.ofInstant(createSimulationRequestDTO.getDates().get(0).toInstant(), ZoneOffset.UTC).format(formatter))
+                        .replace("{upperLimit}", ZonedDateTime.ofInstant(createSimulationRequestDTO.getDates().get(1).toInstant(), ZoneOffset.UTC).format(formatter))
+                        .replace("{frequency}", String.valueOf(createSimulationRequestDTO.getSimulationFrequency())));
+
             }
         }
         simulation.setAttributes(attributes);
         simulation.setFrequency(createSimulationRequestDTO.getSimulationFrequency());
-        simulation.setGateway(new DeviceSetting(10, "G"));
+        simulation.setGateway(new DeviceSetting(createSimulationRequestDTO.getGatewayIncrement(), createSimulationRequestDTO.getGatewayPrefix()));
         simulation.setType("batch");
         return simulation;
     }

@@ -31,11 +31,13 @@ public class FetchFromH2 implements HttpHandler {
                 ResultSet resultSet = preparedStatement.executeQuery();
                 List<HashMap<String, Object>> responseSet = fetchResultSet(resultSet);
                 ObjectMapper objectMapper = new ObjectMapper();
-                OutputStream os = httpExchange.getResponseBody();
                 String response = "";
                 if(!responseSet.isEmpty()) {
                     response = objectMapper.writeValueAsString(responseSet);
                 }
+                httpExchange.getResponseHeaders().add("Content-Type", "application/json");
+                httpExchange.sendResponseHeaders(200, response.getBytes().length);
+                OutputStream os = httpExchange.getResponseBody();
                 os.write(response.getBytes());
                 os.close();
             } catch (RuntimeException | SQLException e) {

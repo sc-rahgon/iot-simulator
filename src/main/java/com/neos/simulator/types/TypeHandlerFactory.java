@@ -3,11 +3,8 @@ package com.neos.simulator.types;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +27,7 @@ public class TypeHandlerFactory {
     }
 
     public void configure(SimulationConfig simulationConfig) {
-        for(String packageName : simulationConfig.getCustomTypeHandlers()) {
+        for (String packageName : simulationConfig.getCustomTypeHandlers()) {
             scanForTypeHandlers(packageName);
         }
     }
@@ -49,7 +46,8 @@ public class TypeHandlerFactory {
                 String typeHandlerName = (String) nameMethod.invoke(o);
                 typeHandlerNameMap.put(typeHandlerName, type);
                 log.debug("Discovered TypeHandler [ " + typeHandlerName + "," + type.getName() + " ]");
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException ex) {
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException |
+                     IllegalArgumentException | InvocationTargetException ex) {
                 log.warn("Error instantiating TypeHandler class [ " + type.getName() + " ]. It will not be available during processing.", ex);
             }
         }
@@ -81,8 +79,8 @@ public class TypeHandlerFactory {
             throw new IllegalArgumentException("Not a value string: " + name);
         }
     }
-    
-    
+
+
     private static List<Object> parseArguments(String argumentsString) {
         List<Object> arguments = new ArrayList<>();
         if (argumentsString.isEmpty()) {
@@ -99,20 +97,28 @@ public class TypeHandlerFactory {
     }
 
     private static Object parseObject(String str) {
-        str = str.trim();
-        if (str.startsWith("'") && str.endsWith("'")) {
-            return str.substring(1, str.length() - 1);  
-        } else if (str.startsWith("[") && str.endsWith("]")) {
-            return parseArray(str.substring(1, str.length() - 1));
-        } else if (str.startsWith("{") && str.endsWith("}")) {
-            str = str.replace("'", "\"");
-            Gson gson = new Gson();
-            return gson.fromJson(str, Map.class); 
-        } else if (str.contains(".")) {
-            return Double.parseDouble(str);
-        } else {
-            return Integer.parseInt(str);
+        try {
+            final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            str = str.trim();
+            if (str.startsWith("'") && str.endsWith("'")) {
+                return str.substring(1, str.length() - 1);
+            } else if (str.startsWith("[") && str.endsWith("]")) {
+                return parseArray(str.substring(1, str.length() - 1));
+            } else if (str.startsWith("{") && str.endsWith("}")) {
+                str = str.replace("'", "\"");
+                Gson gson = new Gson();
+                return gson.fromJson(str, Map.class);
+            } else if (str.contains(".")) {
+                return Double.parseDouble(str);
+            } else if (str.contains("T")) {
+                return SDF.parse(str);
+            } else {
+                return Integer.parseInt(str);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+        return null;
     }
 
     private static String[] splitArguments(String argumentsString) {
@@ -155,7 +161,7 @@ public class TypeHandlerFactory {
 
     public static void main(String[] args) {
         TypeHandlerFactory factory = new TypeHandlerFactory();
-        TypeHandler random = factory.getTypeHandler("alpha(10)");
+        TypeHandler random = factory.getTypeHandler("timestamp(2025-01-01T10:10:23Z, 2025-01-05T10:10:23Z, 5000)");
         if (random == null) {
             log.error("error getting handler");
         } else {
