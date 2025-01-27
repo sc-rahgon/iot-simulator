@@ -14,7 +14,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static com.neos.simulator.constants.SimulatorConstants.parameterConfig;
 
 public class GenerateSampleResponse implements HttpHandler {
     private static final Logger LOGGER = LogManager.getLogger(GenerateSampleResponse.class);
@@ -100,8 +105,8 @@ public class GenerateSampleResponse implements HttpHandler {
     private Simulation setSimulationConfig(CreateSimulationRequestDTO createSimulationRequestDTO) {
         Simulation simulation = new Simulation();
         DeviceSetting deviceSetting = new DeviceSetting();
-        deviceSetting.setPrefix(createSimulationRequestDTO.getDevicePrefix());
-        deviceSetting.setCount(createSimulationRequestDTO.getNumberOfDevices());
+        deviceSetting.setPrefix(createSimulationRequestDTO.getDevice().get("prefix"));
+        deviceSetting.setCount(Long.parseLong(createSimulationRequestDTO.getDevice().get("count")));
         simulation.setDevice(deviceSetting);
         Map<String, Object> requestBodyAttribute = createSimulationRequestDTO.getAttributes();
         Map<String, Object> attributes = new HashMap<>();
@@ -117,12 +122,21 @@ public class GenerateSampleResponse implements HttpHandler {
                 attributes.put(entry.getKey(), attributeRequestDTO.getFunction());
             }
         }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
         if(!attributes.containsKey("timestamp")) {
-            attributes.put("timestamp", "timestamp()");
+            if(createSimulationRequestDTO.getDurationDefine().equals("false")) {
+                attributes.put("timestamp", "timestamp()");
+            } else {
+                attributes.put("timestamp", parameterConfig.replace("{type}", "timestamp")
+                        .replace("{lowerLimit}", ZonedDateTime.ofInstant(createSimulationRequestDTO.getDates().get(0).toInstant(), ZoneOffset.UTC).format(formatter))
+                        .replace("{upperLimit}", ZonedDateTime.ofInstant(createSimulationRequestDTO.getDates().get(1).toInstant(), ZoneOffset.UTC).format(formatter))
+                        .replace("{frequency}", String.valueOf(createSimulationRequestDTO.getSimulationFrequency())));
+
+            }
         }
         simulation.setAttributes(attributes);
         simulation.setFrequency(createSimulationRequestDTO.getSimulationFrequency());
-        simulation.setGateway(new DeviceSetting(createSimulationRequestDTO.getGatewayIncrement(), createSimulationRequestDTO.getGatewayPrefix()));
+        simulation.setGateway(new DeviceSetting(Long.parseLong(createSimulationRequestDTO.getDevice().get("count")), createSimulationRequestDTO.getDevice().get("prefix")));
         simulation.setType("batch");
         return simulation;
     }

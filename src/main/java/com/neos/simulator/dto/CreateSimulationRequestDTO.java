@@ -9,16 +9,13 @@ public class CreateSimulationRequestDTO {
     private String simulationName;
     private String profileID;
     private String protocol;
-    private long numberOfDevices;
-    private String devicePrefix;
-    private long deviceIdIncrement;
     private HashMap<String, Object> attributes;
+    private HashMap<String, String> device;
+    private HashMap<String, String> gateway;
     private long simulationFrequency;
     private String durationDefine;
     private List<Date> dates;
     private String emailId;
-    private String gatewayPrefix;
-    private long gatewayIncrement;
 
     public String getProfileID() {
         return profileID;
@@ -34,22 +31,6 @@ public class CreateSimulationRequestDTO {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
-    }
-
-    public long getNumberOfDevices() {
-        return numberOfDevices;
-    }
-
-    public void setNumberOfDevices(long numberOfDevices) {
-        this.numberOfDevices = numberOfDevices;
-    }
-
-    public long getDeviceIdIncrement() {
-        return deviceIdIncrement;
-    }
-
-    public void setDeviceIdIncrement(long deviceIdIncrement) {
-        this.deviceIdIncrement = deviceIdIncrement;
     }
 
     public HashMap<String, Object> getAttributes() {
@@ -84,13 +65,6 @@ public class CreateSimulationRequestDTO {
         this.emailId = emailId;
     }
 
-    public String getDevicePrefix() {
-        return devicePrefix;
-    }
-
-    public void setDevicePrefix(String devicePrefix) {
-        this.devicePrefix = devicePrefix;
-    }
 
     public String getSimulationName() {
         return simulationName;
@@ -100,27 +74,27 @@ public class CreateSimulationRequestDTO {
         this.simulationName = simulationName;
     }
 
-    public String getGatewayPrefix() {
-        return gatewayPrefix;
-    }
-
-    public void setGatewayPrefix(String gatewayPrefix) {
-        this.gatewayPrefix = gatewayPrefix;
-    }
-
-    public long getGatewayIncrement() {
-        return gatewayIncrement;
-    }
-
-    public void setGatewayIncrement(long gatewayIncrement) {
-        this.gatewayIncrement = gatewayIncrement;
-    }
-
     public String getDurationDefine() {
         return durationDefine;
     }
 
     public void setDurationDefine(String durationDefine) {
         this.durationDefine = durationDefine;
+    }
+
+    public HashMap<String, String> getDevice() {
+        return device;
+    }
+
+    public void setDevice(HashMap<String, String> device) {
+        this.device = device;
+    }
+
+    public HashMap<String, String> getGateway() {
+        return gateway;
+    }
+
+    public void setGateway(HashMap<String, String> gateway) {
+        this.gateway = gateway;
     }
 }

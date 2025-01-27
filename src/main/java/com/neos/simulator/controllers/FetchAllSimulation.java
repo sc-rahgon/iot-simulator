@@ -1,5 +1,7 @@
 package com.neos.simulator.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
@@ -7,14 +9,15 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.neos.simulator.Main;
+import com.neos.simulator.dto.FetchAllSimulationRequestDTO;
+import com.neos.simulator.dto.StopSimulationRequestDTO;
 import com.neos.simulator.util.Utils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.bson.Document;
 import org.springframework.security.core.parameters.P;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +26,24 @@ public class FetchAllSimulation implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        if (httpExchange.getRequestMethod().equals("GET")) {
-            Map<String, Object> query = Utils.parseQuery((httpExchange.getRequestURI().getQuery()));
+        if (httpExchange.getRequestMethod().equals("POST")) {
+            InputStream inputStream = httpExchange.getRequestBody();
+            String requestBody = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines()
+                    .reduce("", (accumulator, actual) -> accumulator + actual);
+            ObjectMapper objectMapper = new ObjectMapper();
+            FetchAllSimulationRequestDTO fetchAllSimulationRequestDTO = null;
+            try {
+                fetchAllSimulationRequestDTO = objectMapper.readValue(requestBody, FetchAllSimulationRequestDTO.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("UNABLE to process exception");
+            }
             BasicDBObject basicDBObject = new BasicDBObject();
-            if(query.containsKey("isActive") && query.containsKey("email")) {
-                basicDBObject.put("isActive", query.get("isActive"));
-                basicDBObject.put("emailId", query.get("email"));
-            } else if (query.containsKey("email")){
-                basicDBObject.put("emailId", query.get("email"));
+            if(fetchAllSimulationRequestDTO.getIsActive() !=null && fetchAllSimulationRequestDTO.getEmail() != null) {
+                basicDBObject.put("isActive", fetchAllSimulationRequestDTO.getIsActive());
+                basicDBObject.put("emailId", fetchAllSimulationRequestDTO.getEmail());
+            } else if (fetchAllSimulationRequestDTO.getEmail() != null) {
+                basicDBObject.put("emailId", fetchAllSimulationRequestDTO.getEmail());
             } else {
                 httpExchange.sendResponseHeaders(500, -1);
             }

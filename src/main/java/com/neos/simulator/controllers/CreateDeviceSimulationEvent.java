@@ -115,8 +115,8 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
     private Simulation setSimulationConfig(CreateSimulationRequestDTO createSimulationRequestDTO) {
         Simulation simulation = new Simulation();
         DeviceSetting deviceSetting = new DeviceSetting();
-        deviceSetting.setPrefix(createSimulationRequestDTO.getDevicePrefix());
-        deviceSetting.setCount(createSimulationRequestDTO.getNumberOfDevices());
+        deviceSetting.setPrefix(createSimulationRequestDTO.getDevice().get("prefix"));
+        deviceSetting.setCount(Long.parseLong(createSimulationRequestDTO.getDevice().get("count")));
         simulation.setDevice(deviceSetting);
         Map<String, Object> requestBodyAttribute = createSimulationRequestDTO.getAttributes();
         Map<String, Object> attributes = new HashMap<>();
@@ -146,7 +146,7 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
         }
         simulation.setAttributes(attributes);
         simulation.setFrequency(createSimulationRequestDTO.getSimulationFrequency());
-        simulation.setGateway(new DeviceSetting(createSimulationRequestDTO.getGatewayIncrement(), createSimulationRequestDTO.getGatewayPrefix()));
+        simulation.setGateway(new DeviceSetting(Long.parseLong(createSimulationRequestDTO.getDevice().get("count")), createSimulationRequestDTO.getDevice().get("prefix")));
         simulation.setType("batch");
         return simulation;
     }

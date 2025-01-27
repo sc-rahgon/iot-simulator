@@ -1,5 +1,7 @@
 package com.neos.simulator.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -7,6 +9,8 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.neos.simulator.Main;
 import com.neos.simulator.SimulationRunner;
+import com.neos.simulator.dto.CreateSimulationRequestDTO;
+import com.neos.simulator.dto.StopSimulationRequestDTO;
 import com.neos.simulator.util.Utils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -14,7 +18,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,14 +37,25 @@ public class StopSimulationEvent implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        if (httpExchange.getRequestMethod().equals("GET")) {
-            Map<String,Object> query = Utils.parseQuery((httpExchange.getRequestURI().getQuery()));
+        if (httpExchange.getRequestMethod().equals("POST")) {
+            InputStream inputStream = httpExchange.getRequestBody();
+            String requestBody = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines()
+                    .reduce("", (accumulator, actual) -> accumulator + actual);
+            ObjectMapper objectMapper = new ObjectMapper();
+            StopSimulationRequestDTO stopSimulationRequestDTO = null;
+            try {
+                stopSimulationRequestDTO = objectMapper.readValue(requestBody, StopSimulationRequestDTO.class);
+            } catch (JsonProcessingException e) {
+                LOGGER.error(e.getStackTrace());
+                throw new RuntimeException("UNABLE to process exception");
+            }
             runner = new SimulationRunner();
-            List<Thread> threads = fetchThread((String) query.get("email"), (String) query.get("simulationName"));
+            List<Thread> threads = fetchThread(stopSimulationRequestDTO.getEmail(), stopSimulationRequestDTO.getSimulationName());
             threads.removeAll(Collections.singleton(null));
-            if(query.containsKey("email") && query.containsKey("simulationName")) {
+            if(stopSimulationRequestDTO.getEmail() != null && stopSimulationRequestDTO.getSimulationName() != null) {
                 runner.stopSimulation(threads);
-                updateRunningStatus((String) query.get("email"), (String) query.get("simulationName"));
+                updateRunningStatus(stopSimulationRequestDTO.getEmail(), stopSimulationRequestDTO.getSimulationName());
             } else {
                 throw new RuntimeException("Invalid email ID provided");
             }

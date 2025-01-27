@@ -15,6 +15,8 @@ public class SimulatorConstants {
             "fixedDecrement(lowerLimit, incrementValue, upperLimit)",
             "integer(lowerLimit, upperLimit)",
             "integer()",
+            "timestamp()",
+            "timestamp(startDate, endDate, frequency)",
             "long(lowerLimit, upperLimit)",
             "long()",
             "randomIncrement(base, lowerLimit, upperLimit)",
