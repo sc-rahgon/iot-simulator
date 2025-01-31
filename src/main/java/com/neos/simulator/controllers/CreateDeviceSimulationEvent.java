@@ -31,6 +31,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -113,6 +114,10 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
             value.put("isActive", "true");
             value.put("sessionUUID", sessionUUID);
             value.put("topic", topic);
+            value.put("createdAt", LocalDateTime.now());
+            value.put("createdBy", createSimulationRequestDTO.getEmailId());
+            value.put("updatedAt", LocalDateTime.now());
+            value.put("updatedBy", createSimulationRequestDTO.getEmailId());
             collection.insertOne(value);
         } catch (NoSuchAlgorithmException | SQLException e) {
             throw new RuntimeException(e);

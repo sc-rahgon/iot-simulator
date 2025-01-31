@@ -119,7 +119,7 @@ public class MqttProducer extends EventProducer {
         Boolean isSSLActive = (Boolean) props.get(IS_SSL_ACTIVE);
         if (isSSLActive) {
             try {
-                connOpts.setSocketFactory(getSocketFactory("/home/opc/newemqx/certs/cacert.pem", "/home/opc/newemqx/certs/cert.pem", "/home/opc/newemqx/certs/key.pem", "Scry@123"));
+                connOpts.setSocketFactory(getSocketFactory("/home/anish_agrawal/Desktop/IoT-Sense/mqtt-dev/cacert.pem", "/home/anish_agrawal/Desktop/IoT-Sense/mqtt-dev/cert.pem", "/home/anish_agrawal/Desktop/IoT-Sense/mqtt-dev/key.pem", "Scry@123"));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
