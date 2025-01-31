@@ -1,15 +1,19 @@
 {
   "simulations": [
     {
-      "simulationName": "test",
+      "simulationName": "test2",
       "simulationConfig": "simulation.json",
       "customTypeHandlers": []
     }
   ],
   "producers": [
-    {
-      "type": "logger"
-    }
+        {
+          "type" : "mqtt",
+          "broker.server" : "ssl://10.149.106.163",
+          "broker.port" : "13016",
+          "topic" : "api",
+          "isSslActive" : true
+        }
   ],
   "requestProcessors": [
     {

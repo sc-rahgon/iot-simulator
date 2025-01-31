@@ -80,6 +80,10 @@ public class HttpPostProducer extends EventProducer {
     }
 
     @Override
+    public void publish(String event, String topic) {
+    }
+
+    @Override
     public void stop() {
         try {
             httpClient.close();
