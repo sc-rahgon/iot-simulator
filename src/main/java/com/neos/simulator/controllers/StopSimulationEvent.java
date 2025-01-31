@@ -26,6 +26,8 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -89,6 +91,12 @@ public class StopSimulationEvent implements HttpHandler {
             if(document != null) {
                 if(document.containsKey("isActive")) {
                     document.replace("isActive", "false");
+                }
+                if(document.containsKey("updatedBy")) {
+                    document.replace("updatedBy", email);
+                }
+                if(document.containsKey("updatedAt")) {
+                    document.replace("updatedAt", LocalDateTime.now());
                 }
             }
 
