@@ -16,6 +16,7 @@ public class CreateSimulationRequestDTO {
     private String durationDefine;
     private List<Date> dates;
     private String emailId;
+    private String topic;
 
     public String getProfileID() {
         return profileID;
@@ -96,5 +97,13 @@ public class CreateSimulationRequestDTO {
 
     public void setGateway(HashMap<String, String> gateway) {
         this.gateway = gateway;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 }

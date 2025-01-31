@@ -34,6 +34,7 @@ public class SimulationRunner {
     private List<RequestProcessor> requestProcessors;
     private String basePath;
     private Simulation simulation;
+    private String topic;
 
     public SimulationRunner(Config config, List<EventProducer> producers, List<RequestProcessor> requestProcessors, String basePath, EventBuffer buffer) {
         this.config = config;
@@ -47,12 +48,12 @@ public class SimulationRunner {
         setupSimulation(buffer);
     }
 
-    public SimulationRunner(Config config, List<EventProducer> producers, List<RequestProcessor> requestProcessors, String basePath, EventBuffer buffer, Simulation simulation) {
+    public SimulationRunner(Config config, List<EventProducer> producers, List<RequestProcessor> requestProcessors, String basePath, EventBuffer buffer, Simulation simulation, String topic) {
         this.config = config;
         this.producers = producers;
         this.requestProcessors = requestProcessors;
         this.basePath = basePath;
-
+        this.topic = topic;
         eventGenerators = new ArrayList<EventGenerator>();
         eventGenThreads = new ArrayList<Thread>();
         this.simulation = simulation;
@@ -74,7 +75,7 @@ public class SimulationRunner {
                     requestProcessor.setGatewaySetting(simulation.getGateway());
                 }
 
-                final EventGenerator gen = new EventGenerator(simulation, producers, buffer);
+                final EventGenerator gen = new EventGenerator(simulation, producers, buffer, null);
                 eventGenerators.add(gen);
                 eventGenThreads.add(new Thread(gen));
             } catch (IOException ex) {
@@ -91,7 +92,7 @@ public class SimulationRunner {
                 requestProcessor.setGatewaySetting(simulation.getGateway());
             }
 
-            final EventGenerator gen = new EventGenerator(simulation, producers, buffer);
+            final EventGenerator gen = new EventGenerator(simulation, producers, buffer, topic);
             eventGenerators.add(gen);
             eventGenThreads.add(new Thread(gen));
         } catch (RuntimeException ex) {

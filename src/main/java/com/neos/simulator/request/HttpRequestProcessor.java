@@ -27,7 +27,7 @@ public class HttpRequestProcessor extends RequestProcessor {
     	this.setBuffer(buffer);
     	
      // Create an HTTP server that listens on port 8080
-        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(13150), 0);
 
         // Create and bind handlers for the routes
         server.createContext("/getDevices", new GetDevicesHandler());
@@ -43,7 +43,7 @@ public class HttpRequestProcessor extends RequestProcessor {
 
         // Start the server
         server.start();
-        System.out.println("Server started at http://localhost:8000");
+        System.out.println("Server started at http://localhost:13150");
     	
     }
     

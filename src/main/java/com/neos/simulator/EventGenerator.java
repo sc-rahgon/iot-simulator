@@ -22,26 +22,28 @@ public class EventGenerator implements Runnable {
     private boolean running;
     private List<EventProducer> producers;
     private EventBuffer buffer;
+    private String topic;
 
-    public EventGenerator(Simulation simulation, List<EventProducer> producers, EventBuffer buffer) {
+    public EventGenerator(Simulation simulation, List<EventProducer> producers, EventBuffer buffer, String topic) {
         this.simulation = simulation;
         this.producers = producers;
         this.buffer = buffer;
-        
+        this.topic = topic;
+
     }
 
     private void runSimulation() {
-    		while(running) {
-    			log.info("Generate event");
-    			generateEventLoop();
-                try {
-                	Thread.sleep(simulation.getFrequency());
-                } catch (InterruptedException ie) {
-                    setRunning(false);
-                    log.error("Error in sleep", ie);
-                }
-    		}
-            
+        while (running) {
+            log.info("Generate event");
+            generateEventLoop();
+            try {
+                Thread.sleep(simulation.getFrequency());
+            } catch (InterruptedException ie) {
+                setRunning(false);
+                log.error("Error in sleep", ie);
+            }
+        }
+
     }
 
     public Map<String, Object> generateEvent(String device, String gateway, Map<String, Object> attributes) throws IOException {
@@ -51,11 +53,11 @@ public class EventGenerator implements Runnable {
         data.put("gateway", gateway);
         return data;
     }
-    
+
     private String createJsonString(Object data) {
-    	return new Gson().toJson(data).toString();
+        return new Gson().toJson(data).toString();
     }
-    
+
     private void generateEventLoop() {
         Random random = new Random();
 
@@ -64,95 +66,106 @@ public class EventGenerator implements Runnable {
 
         int devicesPerGateway = (int) Math.ceil((double) deviceSetting.getCount() / gatewaySetting.getCount());
 
-        
-    	int paddingLengthDevice = String.valueOf(deviceSetting.getCount()).length();
-    	int paddingLengthGateway = String.valueOf(gatewaySetting.getCount()).length();
 
-    	switch (simulation.getType()) {
-        case "sequential":
-        	for (int i = 1; i<=deviceSetting.getCount(); i++) {
-                String device = deviceSetting.getPrefix() + String.format("%0" + paddingLengthDevice + "d", i);
-                int gatewayIndex = (int) Math.ceil((double) i / devicesPerGateway);
-                String gateway = gatewaySetting.getPrefix() + String.format("%0" + paddingLengthGateway + "d", gatewayIndex);
-            	Map<String, Object> event = null;
-				try {
-					event = generateEvent(device, gateway, simulation.getAttributes());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				if ( event != null) {
-					String e = createJsonString(event);
-					 for (EventProducer p : producers) {
-		                 p.publish(e);
-		             }
-					 buffer.addEvent(device, e);
-					 buffer.addEvent(gateway, e);
-				}
-            }
-            break;
-        case "random":
-        	int r = random.nextInt((int) deviceSetting.getCount()) + 1;
-        	 String device = deviceSetting.getPrefix() + String.format("%0" + paddingLengthDevice + "d", r);
-        	 int gatewayIndex = (int) Math.ceil((double) r / devicesPerGateway);
-             String gateway = gatewaySetting.getPrefix() + String.format("%0" + paddingLengthGateway + "d", gatewayIndex);
-             Map<String, Object> event = null;
-				try {
-					event = generateEvent(device, gateway, simulation.getAttributes());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				if ( event != null) {
-					String e = createJsonString(event);
-					 for (EventProducer p : producers) {
-		                 p.publish(e);
-		             }
+        int paddingLengthDevice = String.valueOf(deviceSetting.getCount()).length();
+        int paddingLengthGateway = String.valueOf(gatewaySetting.getCount()).length();
 
-					 buffer.addEvent(device, e);
-					 buffer.addEvent(gateway, e);
-				}
-         	
-             break;
-        case "batch":
-            List<Map<String, Object>> arr = new ArrayList<>();
-        	for (int i = 1; i<=deviceSetting.getCount(); i++) {
-                device = deviceSetting.getPrefix() + String.format("%0" + paddingLengthDevice + "d", i);
-                gatewayIndex = (int) Math.ceil((double) i / devicesPerGateway);
-                gateway = gatewaySetting.getPrefix() + String.format("%0" + paddingLengthGateway + "d", gatewayIndex);
-                event = null;
-                try {
-					event = generateEvent(device, gateway, simulation.getAttributes());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-            	      
-                if (event != null) {
-                	arr.add(event);
+        switch (simulation.getType()) {
+            case "sequential":
+                for (int i = 1; i <= deviceSetting.getCount(); i++) {
+                    String device = deviceSetting.getPrefix() + String.format("%0" + paddingLengthDevice + "d", i);
+                    int gatewayIndex = (int) Math.ceil((double) i / devicesPerGateway);
+                    String gateway = gatewaySetting.getPrefix() + String.format("%0" + paddingLengthGateway + "d", gatewayIndex);
+                    Map<String, Object> event = null;
+                    try {
+                        event = generateEvent(device, gateway, simulation.getAttributes());
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    if (event != null) {
+                        String e = createJsonString(event);
+                        for (EventProducer p : producers) {
+                            if (topic != null) {
+                                p.publish(e, topic);
+                            } else {
+                                p.publish(e);
+                            }
+                        }
+                        buffer.addEvent(device, e);
+                        buffer.addEvent(gateway, e);
+                    }
                 }
-            	
-            	if (i/devicesPerGateway == 0 || i == deviceSetting.getCount()) {
-            		if (arr.size() > 0) {
-    					String e = createJsonString(arr);
-            			for (EventProducer p : producers) {
+                break;
+            case "random":
+                int r = random.nextInt((int) deviceSetting.getCount()) + 1;
+                String device = deviceSetting.getPrefix() + String.format("%0" + paddingLengthDevice + "d", r);
+                int gatewayIndex = (int) Math.ceil((double) r / devicesPerGateway);
+                String gateway = gatewaySetting.getPrefix() + String.format("%0" + paddingLengthGateway + "d", gatewayIndex);
+                Map<String, Object> event = null;
+                try {
+                    event = generateEvent(device, gateway, simulation.getAttributes());
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                if (event != null) {
+                    String e = createJsonString(event);
+                    for (EventProducer p : producers) {
+                        if (topic != null) {
+                            p.publish(e, topic);
+                        } else {
                             p.publish(e);
                         }
+                    }
 
-   					 buffer.addEvent(gateway, e);
-   					 
-            		}
-            		
-            	}
-            	
-            }
-            break;
-        default:
-            System.out.println("Unknown event type: " + simulation.getType());           
+                    buffer.addEvent(device, e);
+                    buffer.addEvent(gateway, e);
+                }
+
+                break;
+            case "batch":
+                List<Map<String, Object>> arr = new ArrayList<>();
+                for (int i = 1; i <= deviceSetting.getCount(); i++) {
+                    device = deviceSetting.getPrefix() + String.format("%0" + paddingLengthDevice + "d", i);
+                    gatewayIndex = (int) Math.ceil((double) i / devicesPerGateway);
+                    gateway = gatewaySetting.getPrefix() + String.format("%0" + paddingLengthGateway + "d", gatewayIndex);
+                    event = null;
+                    try {
+                        event = generateEvent(device, gateway, simulation.getAttributes());
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
+                    if (event != null) {
+                        arr.add(event);
+                    }
+
+                    if (i / devicesPerGateway == 0 || i == deviceSetting.getCount()) {
+                        if (arr.size() > 0) {
+                            String e = createJsonString(arr);
+                            for (EventProducer p : producers) {
+                                if (topic != null) {
+                                    p.publish(e, topic);
+                                } else {
+                                    p.publish(e);
+                                }
+                            }
+
+                            buffer.addEvent(gateway, e);
+
+                        }
+
+                    }
+
+                }
+                break;
+            default:
+                System.out.println("Unknown event type: " + simulation.getType());
         }
 
     }
-
 
 
     public void run() {

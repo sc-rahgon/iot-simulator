@@ -161,7 +161,7 @@ public class TypeHandlerFactory {
 
     public static void main(String[] args) {
         TypeHandlerFactory factory = new TypeHandlerFactory();
-        TypeHandler random = factory.getTypeHandler("timestamp(2025-01-01T10:10:23Z, 2025-01-05T10:10:23Z, 5000)");
+        TypeHandler random = factory.getTypeHandler("constant(10)");
         if (random == null) {
             log.error("error getting handler");
         } else {

@@ -22,10 +22,10 @@ import java.util.List;
 
 public class MongoDBConfig {
     public static MongoClient createMongoClientSettings() {
-        String connectionString = "mongodb://emailAddress=knr.nataraju%40scryanalytics.com,CN=mongodb-3.pvtneom.com,OU=SCRY,O=SCRY,L=HYD,ST=AP,C=IN@mongodb-1.pvtneom.com:27017,mongodb-2.pvtneom.com:27017,mongodb-3.pvtneom.com:27017/?replicaSet=rs-2&tls=true&authMechanism=MONGODB-X509";
+        String connectionString = "mongodb://CN=mongodb-1.devneom.com,O=Default Company Ltd,L=Default City,C=XX@mongodb-1.devneom.com:13027,mongodb-2.devneom.com:13027,mongodb-3.devneom.com:13027/?replicaSet=rs-4&tls=true&authMechanism=MONGODB-X509";
 
-        String keystorePath = "/home/anish_agrawal/Desktop/IoT-Sense/mongo17/test/keystore.jks";
-        String truststorePath = "/home/anish_agrawal/Desktop/IoT-Sense/mongo17/test/truststore.jks";
+        String keystorePath = "/home/opc/certificates/mongo/keystore.jks";
+        String truststorePath = "/home/opc/certificates/mongo/truststore.jks";
         String keystorePassword = "Scry@123";
         String truststorePassword = "Scry@123";
         System.setProperty("javax.net.ssl.keyStore", keystorePath);

@@ -144,6 +144,11 @@ public class KafkaMsgProducer extends EventProducer {
     }
 
     @Override
+    public void publish(String event, String topic) {
+
+    }
+
+    @Override
     public void stop() {
         producer.close();
     }

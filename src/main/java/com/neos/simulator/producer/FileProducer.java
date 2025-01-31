@@ -55,8 +55,13 @@ public class FileProducer extends EventProducer {
             log.error("Unable to create temp file");
         }
     }
-	
-	  @Override
+
+    @Override
+    public void publish(String event, String topic) {
+
+    }
+
+    @Override
 	    public void stop() {
 	    }
 

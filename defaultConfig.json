@@ -7,13 +7,13 @@
     }
   ],
   "producers": [
-    {
-      "type" : "mqtt",
-      "broker.server" : "tcp://127.0.0.1",
-      "broker.port" : "1883",
-      "topic" : "api",
-      "isSslActive" : false
-    }
+        {
+          "type" : "mqtt",
+          "broker.server" : "ssl://10.149.106.163",
+          "broker.port" : "13016",
+          "topic" : "api",
+          "isSslActive" : true
+        }
   ],
   "requestProcessors": [
     {

@@ -13,6 +13,7 @@ import com.neos.simulator.config.Config;
 import com.neos.simulator.config.SimulationConfig;
 import com.neos.simulator.dto.AttributeRequestDTO;
 import com.neos.simulator.dto.CreateSimulationRequestDTO;
+import com.neos.simulator.producer.EventProducer;
 import com.neos.simulator.request.EventBuffer;
 import com.neos.simulator.util.Utils;
 import com.sun.net.httpserver.HttpExchange;
@@ -66,11 +67,16 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
                 LOGGER.error(e.getStackTrace());
                 throw new RuntimeException("UNABLE to process exception");
             }
-
             Simulation simulation = setSimulationConfig(createSimulationRequestDTO);
-            runner = new SimulationRunner(Main.RequestProcessorData.config, Main.RequestProcessorData.eventProducers, Main.RequestProcessorData.requestProcessors, Main.RequestProcessorData.simulationPath, new EventBuffer(), simulation);
+            String topic = null;
+            try {
+                topic = "/simulation/" + Utils.generateUUID(createSimulationRequestDTO.getEmailId() + createSimulationRequestDTO.getSimulationName());
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+            runner = new SimulationRunner(Main.RequestProcessorData.config, Main.RequestProcessorData.eventProducers, Main.RequestProcessorData.requestProcessors, Main.RequestProcessorData.simulationPath, new EventBuffer(), simulation, topic);
             String threadIds = runner.startSimulation();
-            saveDetailsToDatabase(threadIds, createSimulationRequestDTO, requestBody);
+            saveDetailsToDatabase(threadIds, createSimulationRequestDTO, requestBody, topic);
             httpExchange.sendResponseHeaders(200, 0);
             httpExchange.getResponseBody().close();
         } else {
@@ -78,7 +84,7 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
         }
     }
 
-    private void saveDetailsToDatabase(String threadIds, CreateSimulationRequestDTO createSimulationRequestDTO, String requestBody) {
+    private void saveDetailsToDatabase(String threadIds, CreateSimulationRequestDTO createSimulationRequestDTO, String requestBody, String topic) {
         try {
             String sessionUUID = String.valueOf(Utils.generateUUID(createSimulationRequestDTO.getEmailId() + createSimulationRequestDTO.getSimulationName()));
             String createStatement = "CREATE TABLE IF NOT EXISTS SIMULATION_DETAILS(\n" +
@@ -106,6 +112,7 @@ public class CreateDeviceSimulationEvent implements HttpHandler {
             Document value = Document.parse(requestBody);
             value.put("isActive", "true");
             value.put("sessionUUID", sessionUUID);
+            value.put("topic", topic);
             collection.insertOne(value);
         } catch (NoSuchAlgorithmException | SQLException e) {
             throw new RuntimeException(e);

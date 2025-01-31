@@ -41,8 +41,12 @@ public class Log4JProducer extends EventProducer {
             log.error("Error logging event", ex);
         }
     }
-    
-    
+
+    @Override
+    public void publish(String event, String topic) {
+
+    }
+
 
     @Override
     public void stop() {
